@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Federal Contract Hunter Pro</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* ============================================ */
+        /* MODERN CSS - COMPLETE STYLING                */
+        /* No External Costs - Pure CSS                 */
+        /* ============================================ */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #0033a0;
+            --primary-dark: #00267a;
+            --primary-light: #1a4cbb;
+            --secondary: #ffc72c;
+            --secondary-dark: #e6b400;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --dark: #1a1a2e;
+            --gray: #6c757d;
+            --light: #f8f9fa;
+            --white: #ffffff;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+            --radius: 20px;
+            --radius-sm: 12px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: var(--tg-theme-bg-color, #f5f7fb);
+            color: var(--tg-theme-text-color, #1a1a2e);
+            padding: 0;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* Container */
+        .app-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px 16px 90px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 8px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .logo-text h1 {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: var(--gray);
+        }
+
+        .user-badge {
+            background: var(--tg-theme-secondary-bg-color, var(--light));
+            padding: 8px 14px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .user-badge:hover {
+            transform: scale(0.98);
+        }
+
+        .badge-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .badge-status.free { background: var(--gray); }
+        .badge-status.premium { background: var(--warning); }
+        .badge-status.elite { background: var(--secondary); }
+
+        .badge-text {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Trust Banner */
+        .trust-banner {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            font-size: 12px;
+        }
+
+        .trust-item i {
+            font-size: 16px;
+        }
+
+        /* Welcome Card */
+        .welcome-card {
+            background: var(--tg-theme-secondary-bg-color, white);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .welcome-card h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .welcome-card .greeting {
+            color: var(--gray);
+            margin-bottom: 16px;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 16px;
+        }
+
+        .stat-badge {
+            background: var(--light);
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Plan Cards */
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .plan-card {
+            background: var(--tg-theme-secondary-bg-color, white);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .plan-card.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,51,160,0.1);
+        }
+
+        .plan-card.free { background: linear-gradient(135deg, #f8f9fa, #fff); }
+        .plan-card.premium { background: linear-gradient(135deg, #fff9e6, #fff); }
+        .plan-card.elite { background: linear-gradient(135deg, #f3e8ff, #fff); }
+
+        .popular-badge {
+            position: absolute;
+            top: 10px;
+            right: -30px;
+            background: var(--warning);
+            color: white;
+            font-size: 10px;
+            padding: 4px 30px;
+            transform: rotate(45deg);
+            font-weight: 600;
+        }
+
+        .plan-icon {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        .plan-name {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .plan-price {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .plan-price span {
+            font-size: 12px;
+            font-weight: normal;
+            color: var(--gray);
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 16px;
+        }
+
+        .plan-features li {
+            font-size: 11px;
+            padding: 4px 0;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .plan-features li i {
+            font-size: 10px;
+            color: var(--success);
+        }
+
+        .plan-btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .plan-btn.free-btn {
+            background: var(--light);
+            color: var(--gray);
+        }
+
+        .plan-btn.premium-btn {
+            background: linear-gradient(135deg, var(--warning), var(--secondary-dark));
+            color: white;
+        }
+
+        .plan-btn.elite-btn {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+        }
+
+        /* Search Bar - Pro Level */
+        .search-card {
+            background: var(--tg-theme-secondary-bg-color, white);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .search-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 16px 14px 44px;
+            border: 2px solid var(--light);
+            border-radius: 50px;
+            font-size: 16px;
+            background: var(--tg-theme-bg-color, white);
+            color: var(--tg-theme-text-color, black);
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .voice-search {
+            padding: 14px;
+            border-radius: 50px;
+            background: var(--light);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .chip {
+            padding: 8px 16px;
+            background: var(--light);
+            border-radius: 40px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chip.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .chip:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* USA Coverage Section */
+        .coverage-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 24px;
+            color: white;
+        }
+
+        .coverage-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .coverage-header i {
+            font-size: 28px;
+        }
+
+        .coverage-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .coverage-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Contracts List */
+        .contracts-card {
+            background: var(--tg-theme-secondary-bg-color, white);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .contract-item {
+            padding: 16px;
+            border-bottom: 1px solid var(--light);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: var(--radius-sm);
+        }
+
+        .contract-item:hover {
+            background: var(--light);
+        }
+
+        .contract-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .hot-badge {
+            background: var(--danger);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .contract-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .contract-value {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .contract-deadline {
+            color: var(--danger);
+        }
+
+        /* AI Assistant */
+        .ai-assistant {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 24px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ai-assistant:hover {
+            transform: translateY(-2px);
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .ai-header i {
+            font-size: 28px;
+        }
+
+        .ai-suggestion {
+            background: rgba(255,255,255,0.2);
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            margin-top: 12px;
+        }
+
+        /* Payment Methods */
+        .payment-card {
+            background: var(--tg-theme-secondary-bg-color, white);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .payment-methods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .payment-method {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px;
+            background: var(--light);
+            border-radius: var(--radius-sm);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .payment-method:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .payment-method i {
+            font-size: 24px;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        /* Referral Section */
+        .referral-card {
+            background: linear-gradient(135deg, var(--success), #27ae60);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 24px;
+            color: white;
+        }
+
+        .referral-link-container {
+            display: flex;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .referral-input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 40px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 12px;
+        }
+
+        .copy-btn {
+            padding: 12px 20px;
+            background: white;
+            border: none;
+            border-radius: 40px;
+            color: var(--success);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--tg-theme-secondary-bg-color, white);
+            padding: 12px 20px 24px;
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid var(--light);
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: all 0.2s;
+        }
+
+        .nav-item.active {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 22px;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 14px;
+            z-index: 1000;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 16px 12px 90px;
+            }
+            
+            .plans-grid {
+                gap: 8px;
+            }
+            
+            .plan-card {
+                padding: 12px;
+            }
+            
+            .plan-price {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">⚡🏛️</div>
+                <div class="logo-text">
+                    <h1>Federal Contract Hunter</h1>
+                    <p>USA #1 Contract Intelligence</p>
+                </div>
+            </div>
+            <div class="user-badge" id="userBadge">
+                <div class="badge-status free" id="badgeStatus"></div>
+                <span class="badge-text" id="badgeText">FREE</span>
+                <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
+            </div>
+        </div>
+
+        <!-- Trust Banner -->
+        <div class="trust-banner">
+            <div class="trust-item">
+                <i class="fas fa-shield-alt"></i>
+                <span>100% Verified Data</span>
+            </div>
+            <div class="trust-item">
+                <i class="fas fa-lock"></i>
+                <span>Secure Payment</span>
+            </div>
+            <div class="trust-item">
+                <i class="fas fa-star"></i>
+                <span>4.9/5 Rating</span>
+            </div>
+            <div class="trust-item">
+                <i class="fas fa-users"></i>
+                <span>5,000+ Members</span>
+            </div>
+        </div>
+
+        <!-- Welcome Card -->
+        <div class="welcome-card" id="welcomeCard">
+            <h2>Welcome, <span id="userName">Contractor</span>!</h2>
+            <p class="greeting">Your personal federal contract intelligence</p>
+            <div class="stats-row">
+                <div class="stat-badge" id="contractsWon">🏆 0 Contracts Won</div>
+                <div class="stat-badge" id="totalValue">💰 $0 Value</div>
+            </div>
+        </div>
+
+        <!-- Plan Cards -->
+        <div class="section-title">
+            <i class="fas fa-crown" style="color: var(--warning);"></i>
+            <span>Choose Your Plan</span>
+        </div>
+        <div class="plans-grid">
+            <!-- Free Plan -->
+            <div class="plan-card free" id="freePlan" onclick="selectPlan('free')">
+                <div class="plan-icon">🔓</div>
+                <div class="plan-name">FREE</div>
+                <div class="plan-price">$0<span>/month</span></div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> 5 contracts daily</li>
+                    <li><i class="fas fa-check"></i> Weekly summary</li>
+                    <li><i class="fas fa-check"></i> Basic filters</li>
+                </ul>
+                <button class="plan-btn free-btn">Current Plan</button>
+            </div>
+
+            <!-- Premium Plan -->
+            <div class="plan-card premium" id="premiumPlan" onclick="selectPlan('premium')">
+                <div class="popular-badge">🔥 POPULAR</div>
+                <div class="plan-icon">⭐</div>
+                <div class="plan-name">PREMIUM</div>
+                <div class="plan-price">$29<span>/month</span></div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> 20+ contracts daily</li>
+                    <li><i class="fas fa-check"></i> NAICS/Location filter</li>
+                    <li><i class="fas fa-check"></i> Deadline alerts</li>
+                    <li><i class="fas fa-check"></i> Bid strategies</li>
+                </ul>
+                <button class="plan-btn premium-btn">Upgrade Now</button>
+            </div>
+
+            <!-- Elite Plan -->
+            <div class="plan-card elite" id="elitePlan" onclick="selectPlan('elite')">
+                <div class="plan-icon">👑</div>
+                <div class="plan-name">ELITE</div>
+                <div class="plan-price">$79<span>/month</span></div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> All Premium features</li>
+                    <li><i class="fas fa-check"></i> Competitor analysis</li>
+                    <li><i class="fas fa-check"></i> 1-on-1 bid review</li>
+                </ul>
+                <button class="plan-btn elite-btn">Go Elite</button>
+            </div>
+        </div>
+
+        <!-- USA Coverage - Complete 50 States -->
+        <div class="coverage-card">
+            <div class="coverage-header">
+                <i class="fas fa-flag-usa"></i>
+                <div>
+                    <strong>🇺🇸 Complete USA Coverage</strong>
+                    <p style="font-size: 12px; opacity: 0.9;">All 50 States + DC + Territories</p>
+                </div>
+            </div>
+            <div class="coverage-badges" id="coverageBadges">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Pro Search Bar -->
+        <div class="search-card">
+            <div class="section-title">
+                <i class="fas fa-search"></i>
+                <span>Pro Search</span>
+            </div>
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search by NAICS, keyword, agency, location...">
+                </div>
+                <button class="voice-search" onclick="startVoiceSearch()">
+                    <i class="fas fa-microphone"></i>
+                </button>
+            </div>
+            <div class="filter-chips" id="filterChips">
+                <span class="chip active" onclick="filterBy('all')">All</span>
+                <span class="chip" onclick="filterBy('541511')">💻 IT Services</span>
+                <span class="chip" onclick="filterBy('236220')">🏗️ Construction</span>
+                <span class="chip" onclick="filterBy('541330')">📐 Engineering</span>
+                <span class="chip" onclick="filterBy('small')">🏷️ Small Biz</span>
+                <span class="chip" onclick="filterBy('8a')">🎯 8(a)</span>
+                <span class="chip" onclick="filterBy('woman')">👩 Woman-Owned</span>
+                <span class="chip" onclick="filterBy('veteran')">🪖 Veteran</span>
+            </div>
+        </div>
+
+        <!-- AI Assistant -->
+        <div class="ai-assistant" onclick="openAIAssistant()">
+            <div class="ai-header">
+                <i class="fas fa-robot"></i>
+                <div>
+                    <strong>🤖 AI Contract Assistant</strong>
+                    <p style="font-size: 11px; opacity: 0.9;">Powered by Advanced AI</p>
+                </div>
+                <i class="fas fa-chevron-right" style="margin-left: auto;"></i>
+            </div>
+            <div class="ai-suggestion" id="aiSuggestion">
+                💡 Tip: Try searching for "NAICS 541511" for IT contracts
+            </div>
+        </div>
+
+        <!-- Contracts List -->
+        <div class="contracts-card">
+            <div class="section-title">
+                <i class="fas fa-file-contract"></i>
+                <span>Today's Contracts</span>
+                <span style="margin-left: auto; font-size: 12px; color: var(--gray);" id="contractCount">0 opportunities</span>
+            </div>
+            <div id="contractsList" class="contracts-list">
+                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading contracts...</div>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="payment-card">
+            <div class="section-title">
+                <i class="fas fa-credit-card"></i>
+                <span>Secure Payment</span>
+            </div>
+            <div class="payment-methods" id="paymentMethods">
+                <div class="payment-method" onclick="payWith('card')">
+                    <i class="fas fa-credit-card"></i>
+                    <small>Card</small>
+                </div>
+                <div class="payment-method" onclick="payWith('apple')">
+                    <i class="fab fa-apple"></i>
+                    <small>Apple Pay</small>
+                </div>
+                <div class="payment-method" onclick="payWith('google')">
+                    <i class="fab fa-google"></i>
+                    <small>Google Pay</small>
+                </div>
+                <div class="payment-method" onclick="payWith('stars')">
+                    <i class="fas fa-star"></i>
+                    <small>Stars</small>
+                </div>
+                <div class="payment-method" onclick="payWith('crypto')">
+                    <i class="fas fa-coins"></i>
+                    <small>Crypto</small>
+                </div>
+                <div class="payment-method" onclick="payWith('paypal')">
+                    <i class="fab fa-paypal"></i>
+                    <small>PayPal</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Referral Program -->
+        <div class="referral-card">
+            <div class="section-title" style="color: white;">
+                <i class="fas fa-gift"></i>
+                <span>Invite Friends, Earn Rewards</span>
+            </div>
+            <p style="font-size: 13px; opacity: 0.9;">Get 10% lifetime commission on every referral</p>
+            <div class="referral-link-container">
+                <input type="text" class="referral-input" id="referralLink" readonly>
+                <button class="copy-btn" onclick="copyReferralLink()">📋 Copy</button>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 12px;">
+                <span>Your referrals: <strong id="referralCount">0</strong></span>
+                <span>Earned: <strong id="referralEarnings">$0</strong></span>
+                <span>Next payout: <strong id="nextPayout">$50</strong></span>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="showTab('home')">
+                <i class="fas fa-home nav-icon"></i>
+                <span class="nav-label">Home</span>
+            </div>
+            <div class="nav-item" onclick="showTab('search')">
+                <i class="fas fa-search nav-icon"></i>
+                <span class="nav-label">Search</span>
+            </div>
+            <div class="nav-item" onclick="showTab('saved')">
+                <i class="fas fa-bookmark nav-icon"></i>
+                <span class="nav-label">Saved</span>
+            </div>
+            <div class="nav-item" onclick="showTab('analytics')">
+                <i class="fas fa-chart-line nav-icon"></i>
+                <span class="nav-label">Stats</span>
+            </div>
+            <div class="nav-item" onclick="showTab('profile')">
+                <i class="fas fa-user nav-icon"></i>
+                <span class="nav-label">Profile</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+                                                                    </html>
