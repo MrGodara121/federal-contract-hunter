@@ -1,29 +1,8 @@
 {
   "version": 2,
-  "name": "federal-contract-hunter",
-  "builds": [
-    {
-      "src": "*.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.css",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.txt",
-      "use": "@vercel/static"
-    }
-  ],
+  "cleanUrls": true,
+  "trailingSlash": false,
   "routes": [
-    {
-      "src": "/",
-      "dest": "/index.html"
-    },
     {
       "src": "/(.*)",
       "dest": "/$1"
