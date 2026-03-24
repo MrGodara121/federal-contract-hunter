@@ -1,597 +1,652 @@
 // ============================================
-// FEDERAL CONTRACT HUNTER 2.0 - COMPLETE SCRIPT
-// All Features: Trust, Speed, USA Coverage, AI Assistant
+// FEDERAL CONTRACT HUNTER - COMPLETE JAVASCRIPT
+// USA 50 States | All Cities | All Features
 // ============================================
 
-// Initialize Telegram WebApp
+// Telegram WebApp Init
 const tg = window.Telegram.WebApp;
 tg.expand();
 tg.enableClosingConfirmation();
-tg.ready();
 
-// User Data
+// ========== USER DATA ==========
 let currentUser = {
     id: null,
     name: null,
     tier: 'free',
     naics: null,
     location: null,
-    state: null,
     city: null,
-    contractsWon: 0,
-    totalValue: 0
+    savedContracts: []
 };
 
-// Contracts Data
 let allContracts = [];
 let filteredContracts = [];
-let savedContracts = [];
+let currentPage = 0;
+const CONTRACTS_PER_PAGE = 10;
 
-// USA Data - Complete 50 States + Major Cities
-const usaData = {
-    states: [
-        "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
-        "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-        "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-        "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-        "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
-    ],
-    cities: [
-        "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia",
-        "San Antonio", "San Diego", "Dallas", "Austin", "San Jose", "Jacksonville",
-        "Fort Worth", "Columbus", "Charlotte", "San Francisco", "Indianapolis",
-        "Seattle", "Denver", "Washington DC", "Boston", "El Paso", "Nashville",
-        "Detroit", "Oklahoma City", "Portland", "Las Vegas", "Memphis", "Louisville",
-        "Baltimore", "Milwaukee", "Albuquerque", "Tucson", "Fresno", "Sacramento",
-        "Kansas City", "Mesa", "Atlanta", "Omaha", "Colorado Springs", "Raleigh",
-        "Miami", "Virginia Beach", "Long Beach", "Oakland", "Minneapolis", "Tulsa",
-        "Arlington", "New Orleans", "Cleveland"
-    ]
-};
+// ========== USA CITIES DATABASE (Top 100 Cities) ==========
+const usaCities = [
+    "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "Austin",
+    "San Jose", "Fort Worth", "Jacksonville", "Columbus", "Charlotte", "San Francisco", "Indianapolis", "Seattle", "Denver", "Washington",
+    "Boston", "El Paso", "Nashville", "Detroit", "Oklahoma City", "Portland", "Las Vegas", "Memphis", "Louisville", "Baltimore",
+    "Milwaukee", "Albuquerque", "Tucson", "Fresno", "Sacramento", "Kansas City", "Mesa", "Atlanta", "Omaha", "Colorado Springs",
+    "Raleigh", "Miami", "Long Beach", "Virginia Beach", "Oakland", "Minneapolis", "Tulsa", "Arlington", "New Orleans", "Wichita",
+    "Cleveland", "Tampa", "Bakersfield", "Aurora", "Anaheim", "Honolulu", "Santa Ana", "Riverside", "Corpus Christi", "Lexington",
+    "Stockton", "St. Louis", "Saint Paul", "Cincinnati", "Pittsburgh", "Henderson", "Greensboro", "Anchorage", "Plano", "Newark",
+    "Lincoln", "Orlando", "Chula Vista", "Irvine", "Fort Wayne", "Jersey City", "Durham", "St. Petersburg", "Lubbock", "Madison",
+    "Chandler", "Buffalo", "Laredo", "Gilbert", "Reno", "Winston-Salem", "Hialeah", "Garland", "Scottsdale", "Chesapeake",
+    "North Las Vegas", "Fremont", "Baton Rouge", "Richmond", "Boise", "San Bernardino", "Spokane", "Des Moines", "Montgomery", "Fargo"
+];
 
-// Demo Contracts Data
+// ========== DEMO CONTRACTS DATA (USA All States) ==========
 const demoContracts = [
     {
         id: 1,
         title: "AI-Powered Cybersecurity Solutions",
         agency: "Department of Defense",
-        value: "$75,000,000",
+        value: 75000000,
+        valueFormatted: "$75,000,000",
         deadline: "April 15, 2026",
         naics: "541511",
+        naicsName: "Custom Computer Programming",
         setAside: "Small Business",
         location: "Nationwide",
+        state: "DC",
+        city: "Washington",
         isHot: true,
-        description: "Develop AI/ML solutions for threat detection and incident response.",
-        requirements: "AI/ML expertise, security clearance, DOD experience",
-        probability: "78%"
+        isNew: true,
+        postedDate: "March 24, 2026"
     },
     {
         id: 2,
         title: "Cloud Migration Services",
         agency: "NASA",
-        value: "$12,000,000",
+        value: 12000000,
+        valueFormatted: "$12,000,000",
         deadline: "April 20, 2026",
         naics: "541512",
+        naicsName: "Computer Systems Design",
         setAside: "8(a)",
-        location: "Nationwide",
+        location: "California, Texas, Florida",
+        state: "CA",
+        city: "Houston",
         isHot: false,
-        description: "Migrate legacy systems to cloud infrastructure.",
-        requirements: "AWS/Azure/GCP experience, FedRAMP compliance",
-        probability: "65%"
+        isNew: true,
+        postedDate: "March 23, 2026"
     },
     {
         id: 3,
         title: "IT Support Services",
         agency: "Department of Treasury",
-        value: "$8,000,000",
+        value: 8000000,
+        valueFormatted: "$8,000,000",
         deadline: "April 25, 2026",
         naics: "541511",
+        naicsName: "Custom Computer Programming",
         setAside: "Woman-Owned",
-        location: "Washington DC",
+        location: "Virginia, Maryland, DC",
+        state: "VA",
+        city: "Arlington",
         isHot: false,
-        description: "24/7 IT support for Treasury systems.",
-        requirements: "ITIL certification, help desk experience",
-        probability: "72%"
+        isNew: false,
+        postedDate: "March 22, 2026"
     },
     {
         id: 4,
-        title: "Construction of Federal Building",
-        agency: "GSA",
-        value: "$45,000,000",
+        title: "Construction Services for Military Facilities",
+        agency: "Department of Army",
+        value: 45000000,
+        valueFormatted: "$45,000,000",
         deadline: "May 1, 2026",
         naics: "236220",
-        setAside: "Small Business",
-        location: "Texas",
+        naicsName: "Commercial and Institutional Building Construction",
+        setAside: "SDVOSB",
+        location: "Texas, Oklahoma, Louisiana",
+        state: "TX",
+        city: "Fort Worth",
         isHot: true,
-        description: "New federal courthouse construction.",
-        requirements: "Construction license, bonding capacity, past federal projects",
-        probability: "55%"
+        isNew: false,
+        postedDate: "March 21, 2026"
     },
     {
         id: 5,
-        title: "Engineering Design Services",
-        agency: "USACE",
-        value: "$5,000,000",
+        title: "Engineering Services for Infrastructure",
+        agency: "Department of Transportation",
+        value: 25000000,
+        valueFormatted: "$25,000,000",
         deadline: "April 28, 2026",
         naics: "541330",
-        setAside: "Veteran-Owned",
-        location: "California",
+        naicsName: "Engineering Services",
+        setAside: "Small Business",
+        location: "California, Oregon, Washington",
+        state: "CA",
+        city: "Sacramento",
         isHot: false,
-        description: "Infrastructure design for flood control.",
-        requirements: "PE license, AutoCAD expertise",
-        probability: "82%"
+        isNew: true,
+        postedDate: "March 24, 2026"
+    },
+    {
+        id: 6,
+        title: "Facilities Maintenance Services",
+        agency: "General Services Administration",
+        value: 15000000,
+        valueFormatted: "$15,000,000",
+        deadline: "April 18, 2026",
+        naics: "561210",
+        naicsName: "Facilities Support Services",
+        setAside: "HUBZone",
+        location: "Nationwide",
+        state: "DC",
+        city: "Washington",
+        isHot: false,
+        isNew: false,
+        postedDate: "March 20, 2026"
+    },
+    {
+        id: 7,
+        title: "Management Consulting Services",
+        agency: "Department of Health and Human Services",
+        value: 5000000,
+        valueFormatted: "$5,000,000",
+        deadline: "May 5, 2026",
+        naics: "541611",
+        naicsName: "Administrative Management Consulting",
+        setAside: "Woman-Owned",
+        location: "Maryland, DC, Virginia",
+        state: "MD",
+        city: "Baltimore",
+        isHot: false,
+        isNew: true,
+        postedDate: "March 23, 2026"
+    },
+    {
+        id: 8,
+        title: "Data Center Operations",
+        agency: "Department of Homeland Security",
+        value: 95000000,
+        valueFormatted: "$95,000,000",
+        deadline: "April 30, 2026",
+        naics: "541519",
+        naicsName: "Other Computer Related Services",
+        setAside: "Small Business",
+        location: "Virginia, North Carolina, Georgia",
+        state: "VA",
+        city: "Richmond",
+        isHot: true,
+        isNew: false,
+        postedDate: "March 19, 2026"
+    },
+    {
+        id: 9,
+        title: "Software Development for Veterans Affairs",
+        agency: "Department of Veterans Affairs",
+        value: 32000000,
+        valueFormatted: "$32,000,000",
+        deadline: "May 10, 2026",
+        naics: "541511",
+        naicsName: "Custom Computer Programming",
+        setAside: "SDVOSB",
+        location: "Nationwide",
+        state: "DC",
+        city: "Washington",
+        isHot: false,
+        isNew: true,
+        postedDate: "March 24, 2026"
+    },
+    {
+        id: 10,
+        title: "Environmental Remediation Services",
+        agency: "Environmental Protection Agency",
+        value: 18000000,
+        valueFormatted: "$18,000,000",
+        deadline: "May 15, 2026",
+        naics: "562910",
+        naicsName: "Remediation Services",
+        setAside: "8(a)",
+        location: "Florida, Georgia, Alabama",
+        state: "FL",
+        city: "Miami",
+        isHot: false,
+        isNew: false,
+        postedDate: "March 18, 2026"
     }
 ];
 
-// ============================================
-// INITIALIZATION
-// ============================================
+// Generate more contracts for all 50 states
+for (let i = 11; i <= 150; i++) {
+    const states = ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY","DC"];
+    const cities = usaCities;
+    const randomState = states[Math.floor(Math.random() * states.length)];
+    const randomCity = cities[Math.floor(Math.random() * cities.length)];
+    const values = [250000, 500000, 1000000, 2500000, 5000000, 10000000, 25000000, 50000000, 100000000];
+    const naicsList = ["541511","541512","541513","541519","541330","236220","561210","541611","541614","541618"];
+    const setAsides = ["Small Business", "8(a)", "Woman-Owned", "SDVOSB", "HUBZone", "None"];
+    
+    demoContracts.push({
+        id: i,
+        title: `Contract Opportunity ${i}: ${["IT Services", "Construction", "Consulting", "Maintenance", "Software"][Math.floor(Math.random() * 5)]} Project`,
+        agency: ["DOD", "NASA", "DHS", "VA", "GSA", "Treasury", "HHS"][Math.floor(Math.random() * 7)],
+        value: values[Math.floor(Math.random() * values.length)],
+        valueFormatted: `$${values[Math.floor(Math.random() * values.length)].toLocaleString()}`,
+        deadline: `April ${Math.floor(Math.random() * 30) + 1}, 2026`,
+        naics: naicsList[Math.floor(Math.random() * naicsList.length)],
+        naicsName: "Various Services",
+        setAside: setAsides[Math.floor(Math.random() * setAsides.length)],
+        location: `${randomCity}, ${randomState}`,
+        state: randomState,
+        city: randomCity,
+        isHot: Math.random() > 0.8,
+        isNew: Math.random() > 0.9,
+        postedDate: `March ${Math.floor(Math.random() * 24) + 1}, 2026`
+    });
+}
 
+allContracts = demoContracts;
+filteredContracts = [...allContracts];
+
+// ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', async () => {
-    // Get user from Telegram
     const initData = tg.initDataUnsafe;
-    currentUser.id = initData.user?.id;
+    currentUser.id = initData.user?.id || Math.floor(Math.random() * 1000000);
     currentUser.name = initData.user?.first_name || 'Contractor';
     
-    // Set user name
     document.getElementById('userName').innerText = currentUser.name;
     
-    // Load user data from storage
-    await loadUserData();
-    
-    // Populate USA coverage badges
-    populateUSACoverage();
-    
-    // Load contracts
-    await loadContracts();
-    
-    // Generate referral link
+    await loadUserStatus();
+    updateStats();
+    renderContracts();
+    setupEventListeners();
     generateReferralLink();
     
-    // Setup event listeners
-    setupEventListeners();
-    
-    // Show welcome toast
-    showToast(`Welcome ${currentUser.name}! Ready to win contracts?`, 'success');
+    tg.ready();
 });
 
-// ============================================
-// USA COVERAGE - Complete 50 States
-// ============================================
-
-function populateUSACoverage() {
-    const container = document.getElementById('coverageBadges');
-    if (!container) return;
+// ========== LOAD USER STATUS ==========
+async function loadUserStatus() {
+    const savedTier = localStorage.getItem(`fch_tier_${currentUser.id}`);
+    if (savedTier) {
+        currentUser.tier = savedTier;
+        updateUserBadge();
+    }
     
-    let html = '';
-    usaData.states.forEach(state => {
-        html += `<span class="coverage-badge">${state}</span>`;
-    });
-    html += `<span class="coverage-badge">🇺🇸 DC</span>`;
-    html += `<span class="coverage-badge">🇵🇷 Puerto Rico</span>`;
-    html += `<span class="coverage-badge">🇻🇮 USVI</span>`;
-    html += `<span class="coverage-badge">🇬🇺 Guam</span>`;
+    const savedNaics = localStorage.getItem(`fch_naics_${currentUser.id}`);
+    if (savedNaics) {
+        currentUser.naics = savedNaics;
+        document.getElementById('naicsSelect').value = savedNaics;
+    }
     
-    container.innerHTML = html;
+    const savedState = localStorage.getItem(`fch_state_${currentUser.id}`);
+    if (savedState) {
+        currentUser.location = savedState;
+        document.getElementById('stateSelect').value = savedState;
+    }
+    
+    const savedCity = localStorage.getItem(`fch_city_${currentUser.id}`);
+    if (savedCity) {
+        currentUser.city = savedCity;
+        document.getElementById('citySearch').value = savedCity;
+    }
 }
 
-// ============================================
-// LOAD CONTRACTS
-// ============================================
-
-async function loadContracts() {
-    // Show loading
-    document.getElementById('contractsList').innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading contracts...</div>';
-    
-    // Simulate API call (replace with actual SAM.gov API)
-    setTimeout(() => {
-        allContracts = demoContracts;
-        filteredContracts = [...allContracts];
-        renderContracts();
-        updateContractCount();
-    }, 500);
+function updateUserBadge() {
+    const badge = document.getElementById('userBadge');
+    if (currentUser.tier === 'premium') {
+        badge.innerHTML = '<span class="badge-premium">⭐ PREMIUM</span>';
+        document.querySelectorAll('.premium-only').forEach(el => el.classList.remove('hidden'));
+    } else if (currentUser.tier === 'elite') {
+        badge.innerHTML = '<span class="badge-elite">👑 ELITE</span>';
+        document.querySelectorAll('.premium-only').forEach(el => el.classList.remove('hidden'));
+        document.querySelectorAll('.elite-only').forEach(el => el.classList.remove('hidden'));
+    } else {
+        badge.innerHTML = '<span class="badge-free">FREE</span>';
+    }
 }
 
+// ========== STATS UPDATE ==========
+function updateStats() {
+    const todayContracts = allContracts.filter(c => c.postedDate.includes('March 24')).length || allContracts.length;
+    const totalValue = allContracts.reduce((sum, c) => sum + c.value, 0);
+    
+    document.getElementById('todayContracts').innerText = todayContracts;
+    document.getElementById('totalValue').innerText = `$${(totalValue / 1000000000).toFixed(1)}B`;
+}
+
+// ========== RENDER CONTRACTS ==========
 function renderContracts() {
     const container = document.getElementById('contractsList');
+    const start = currentPage * CONTRACTS_PER_PAGE;
+    const end = start + CONTRACTS_PER_PAGE;
+    const contractsToShow = filteredContracts.slice(start, end);
     
-    if (!filteredContracts || filteredContracts.length === 0) {
-        container.innerHTML = '<div class="loading">No contracts found. Try adjusting filters.</div>';
+    if (contractsToShow.length === 0 && currentPage === 0) {
+        container.innerHTML = '<div class="loading-container"><p>No contracts found for your filters.</p></div>';
+        return;
+    }
+    
+    if (contractsToShow.length === 0 && currentPage > 0) {
+        document.getElementById('loadMoreBtn').style.display = 'none';
         return;
     }
     
     let html = '';
-    filteredContracts.forEach(contract => {
+    contractsToShow.forEach(contract => {
+        const isPremiumFeature = currentUser.tier === 'free' && (contract.isHot || contract.isNew);
+        
         html += `
             <div class="contract-item" onclick="viewContract(${contract.id})">
                 <div class="contract-title">
-                    <span>${contract.title}</span>
+                    ${contract.title}
                     ${contract.isHot ? '<span class="hot-badge">🔥 HOT</span>' : ''}
+                    ${contract.isNew ? '<span class="new-badge">🆕 NEW</span>' : ''}
+                    ${isPremiumFeature ? '<span class="hot-badge">⭐ PREMIUM</span>' : ''}
                 </div>
                 <div class="contract-meta">
-                    <span><i class="fas fa-building"></i> ${contract.agency}</span>
-                    <span class="contract-value"><i class="fas fa-dollar-sign"></i> ${contract.value}</span>
-                    <span class="contract-deadline"><i class="fas fa-calendar"></i> ${contract.deadline}</span>
+                    <span>🏛️ ${contract.agency}</span>
+                    <span class="contract-value">💰 ${contract.valueFormatted}</span>
+                    <span class="contract-deadline">📅 ${contract.deadline}</span>
                 </div>
                 <div class="contract-meta">
-                    <span><i class="fas fa-tag"></i> NAICS: ${contract.naics}</span>
-                    <span><i class="fas fa-trophy"></i> ${contract.setAside}</span>
-                    <span><i class="fas fa-map-marker-alt"></i> ${contract.location}</span>
+                    <span>🔢 NAICS: ${contract.naics}</span>
+                    <span>📍 ${contract.location}</span>
+                    <span>🏷️ ${contract.setAside}</span>
                 </div>
-                <div style="margin-top: 8px;">
-                    <span style="font-size: 11px; color: var(--success);">🎯 Win Probability: ${contract.probability}</span>
-                </div>
+                ${isPremiumFeature ? '<div class="premium-banner" style="margin-top:8px; font-size:11px; color:#f39c12;">⭐ Upgrade to Premium to view full details</div>' : ''}
             </div>
         `;
     });
     
     container.innerHTML = html;
+    document.getElementById('loadMoreBtn').style.display = filteredContracts.length > end ? 'block' : 'none';
 }
 
-function updateContractCount() {
-    const count = filteredContracts.length;
-    document.getElementById('contractCount').innerHTML = `${count} opportunities`;
-}
-
-// ============================================
-// SEARCH FUNCTIONALITY
-// ============================================
-
-const searchInput = document.getElementById('searchInput');
-if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-        if (searchTerm === '') {
-            filteredContracts = [...allContracts];
-        } else {
-            filteredContracts = allContracts.filter(contract => 
-                contract.title.toLowerCase().includes(searchTerm) ||
-                contract.agency.toLowerCase().includes(searchTerm) ||
-                contract.naics.includes(searchTerm) ||
-                contract.location.toLowerCase().includes(searchTerm)
-            );
-        }
-        renderContracts();
-        updateContractCount();
-    });
-}
-
-function filterBy(filter) {
-    // Update active chip
-    document.querySelectorAll('.chip').forEach(chip => {
-        chip.classList.remove('active');
-    });
-    event.target.classList.add('active');
+// ========== VIEW CONTRACT DETAILS ==========
+function viewContract(contractId) {
+    const contract = allContracts.find(c => c.id === contractId);
+    if (!contract) return;
     
-    if (filter === 'all') {
-        filteredContracts = [...allContracts];
-    } else if (filter === '541511') {
-        filteredContracts = allContracts.filter(c => c.naics === '541511');
-    } else if (filter === '236220') {
-        filteredContracts = allContracts.filter(c => c.naics === '236220');
-    } else if (filter === '541330') {
-        filteredContracts = allContracts.filter(c => c.naics === '541330');
-    } else if (filter === 'small') {
-        filteredContracts = allContracts.filter(c => c.setAside === 'Small Business');
-    } else if (filter === '8a') {
-        filteredContracts = allContracts.filter(c => c.setAside === '8(a)');
-    } else if (filter === 'woman') {
-        filteredContracts = allContracts.filter(c => c.setAside === 'Woman-Owned');
-    } else if (filter === 'veteran') {
-        filteredContracts = allContracts.filter(c => c.setAside === 'Veteran-Owned');
+    const isPremiumContent = contract.isHot || contract.isNew;
+    
+    if (isPremiumContent && currentUser.tier === 'free') {
+        tg.showPopup({
+            title: "⭐ Premium Content",
+            message: "This contract is only visible to Premium members.\n\nUpgrade now to see all hot contracts and get 20+ daily opportunities!",
+            buttons: [{text: "Upgrade Now"}, {text: "Cancel"}]
+        }, (buttonId) => {
+            if (buttonId === 0) showPaymentOptions();
+        });
+        return;
     }
     
-    renderContracts();
-    updateContractCount();
-}
+    const message = `
+📄 **${contract.title}**
 
-function startVoiceSearch() {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'en-US';
-        recognition.start();
-        
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            document.getElementById('searchInput').value = transcript;
-            // Trigger search
-            const inputEvent = new Event('input');
-            document.getElementById('searchInput').dispatchEvent(inputEvent);
-        };
-        
-        recognition.onerror = () => {
-            showToast('Voice search not supported', 'error');
-        };
-    } else {
-        showToast('Voice search not supported on this device', 'error');
-    }
-}
+🏛️ **Agency:** ${contract.agency}
+💰 **Value:** ${contract.valueFormatted}
+📅 **Deadline:** ${contract.deadline}
+🔢 **NAICS:** ${contract.naics} - ${contract.naicsName}
+📍 **Location:** ${contract.location}
+🏷️ **Set-Aside:** ${contract.setAside}
 
-// ============================================
-// PLAN SELECTION & PAYMENT
-// ============================================
+📌 **Description:**
+${getContractDescription(contract)}
 
-let selectedPlan = null;
+💡 **Bid Strategy:**
+${getBidStrategy(contract)}
 
-function selectPlan(plan) {
-    selectedPlan = plan;
+🔗 **Full Details:** sam.gov/opp/${contract.id}
+    `;
     
-    // Remove selected class from all plans
-    document.querySelectorAll('.plan-card').forEach(card => {
-        card.classList.remove('selected');
-    });
-    
-    // Add selected class to chosen plan
-    if (plan === 'free') {
-        document.getElementById('freePlan').classList.add('selected');
-        showToast('You are on Free Tier! Upgrade for more contracts.', 'info');
-    } else if (plan === 'premium') {
-        document.getElementById('premiumPlan').classList.add('selected');
-        showPaymentMethods('premium', 29);
-    } else if (plan === 'elite') {
-        document.getElementById('elitePlan').classList.add('selected');
-        showPaymentMethods('elite', 79);
-    }
-}
-
-function showPaymentMethods(plan, amount) {
     tg.showPopup({
-        title: `Upgrade to ${plan.toUpperCase()}`,
-        message: `Pay $${amount}/month for ${plan.toUpperCase()} features. Choose payment method:`,
-        buttons: [
-            {text: "💳 Card", callback_data: "card"},
-            {text: "📱 Apple Pay", callback_data: "apple"},
-            {text: "⭐ Stars", callback_data: "stars"},
-            {text: "₿ Crypto", callback_data: "crypto"},
-            {text: "💰 PayPal", callback_data: "paypal"},
-            {text: "Cancel", callback_data: "cancel"}
-        ]
-    }, (buttonId) => {
-        if (buttonId && buttonId !== 'cancel') {
-            initiatePayment(plan, amount, buttonId);
-        }
+        title: contract.title,
+        message: message,
+        buttons: [{text: "Close"}]
     });
 }
 
-function initiatePayment(plan, amount, method) {
-    // All payments go through Telegram Stars/Invoice system
-    const starsAmount = amount * 200; // $1 = 200 Stars
-    
-    const invoice = {
-        title: `${plan.toUpperCase()} Subscription`,
-        description: `Monthly access to federal contracts filtered by your industry`,
-        currency: "XTR",
-        prices: [{ label: `${plan.toUpperCase()} Plan`, amount: starsAmount }],
-        payload: JSON.stringify({
-            plan: plan,
-            user_id: currentUser.id,
-            method: method,
-            timestamp: Date.now()
-        })
+function getContractDescription(contract) {
+    const descriptions = {
+        "541511": "This contract requires expertise in custom software development, AI/ML integration, and cybersecurity protocols.",
+        "236220": "This contract involves commercial and institutional building construction with federal compliance requirements.",
+        "541330": "This contract requires engineering design, analysis, and project management services.",
+        "default": "This federal contract opportunity requires qualified vendors with relevant past performance."
     };
-    
-    tg.showInvoice(invoice);
+    return descriptions[contract.naics] || descriptions.default;
 }
 
-// Payment success handler (called by bot/webhook)
-function onPaymentSuccess(plan) {
-    currentUser.tier = plan;
-    updateUserUI();
-    showToast(`✅ Success! You are now on ${plan.toUpperCase()} plan!`, 'success');
-    
-    // Update badge
-    const badgeStatus = document.getElementById('badgeStatus');
-    const badgeText = document.getElementById('badgeText');
-    
-    if (plan === 'premium') {
-        badgeStatus.className = 'badge-status premium';
-        badgeText.innerText = 'PREMIUM';
-    } else if (plan === 'elite') {
-        badgeStatus.className = 'badge-status elite';
-        badgeText.innerText = 'ELITE';
-    }
-    
-    // Reload contracts with premium data
-    loadContracts();
+function getBidStrategy(contract) {
+    return `✅ Highlight past performance in ${contract.naicsName}\n✅ Demonstrate team qualifications\n✅ Price competitively (${(contract.value / 1000000).toFixed(0)}M range)\n✅ Include all required certifications`;
 }
 
-function updateUserUI() {
-    if (currentUser.tier === 'premium') {
-        document.getElementById('badgeStatus').className = 'badge-status premium';
-        document.getElementById('badgeText').innerText = '⭐ PREMIUM';
-    } else if (currentUser.tier === 'elite') {
-        document.getElementById('badgeStatus').className = 'badge-status elite';
-        document.getElementById('badgeText').innerText = '👑 ELITE';
-    }
-}
-
-// ============================================
-// AI ASSISTANT
-// ============================================
-
-function openAIAssistant() {
-    tg.showPopup({
-        title: "🤖 AI Contract Assistant",
-        message: "Ask me anything about federal contracts!\n\nExamples:\n• What NAICS code should I use?\n• How to write a winning bid?\n• Help me find contracts in Texas\n• What's the best pricing strategy?",
-        buttons: [{text: "Start Chat", callback_data: "start"}]
-    }, () => {
-        // Open AI chat (can be implemented via bot)
-        tg.showAlert("💡 Tip: Use the search bar above with keywords like 'NAICS 541511' or 'Small Business contracts'");
+// ========== SEARCH & FILTER ==========
+function searchContracts() {
+    const searchTerm = document.getElementById('globalSearch').value.toLowerCase();
+    const filterType = document.querySelector('.chip.active')?.dataset.filter || 'all';
+    const naics = document.getElementById('naicsSelect').value;
+    const state = document.getElementById('stateSelect').value;
+    const city = document.getElementById('citySearch').value.toLowerCase();
+    const priceRange = document.getElementById('priceRange').value;
+    
+    filteredContracts = allContracts.filter(contract => {
+        if (searchTerm && !contract.title.toLowerCase().includes(searchTerm) && 
+            !contract.agency.toLowerCase().includes(searchTerm)) return false;
+        
+        if (filterType !== 'all') {
+            const filterMap = {
+                'small_biz': 'Small Business',
+                '8a': '8(a)',
+                'wosb': 'Woman-Owned',
+                'sdvosb': 'SDVOSB',
+                'hubzone': 'HUBZone'
+            };
+            if (contract.setAside !== filterMap[filterType]) return false;
+        }
+        
+        if (naics && contract.naics !== naics) return false;
+        if (state && contract.state !== state) return false;
+        if (city && !contract.city.toLowerCase().includes(city)) return false;
+        
+        if (priceRange) {
+            const value = contract.value;
+            const ranges = {
+                'under_100k': value < 100000,
+                '100k_1m': value >= 100000 && value < 1000000,
+                '1m_10m': value >= 1000000 && value < 10000000,
+                '10m_100m': value >= 10000000 && value < 100000000,
+                'over_100m': value >= 100000000
+            };
+            if (!ranges[priceRange]) return false;
+        }
+        
+        return true;
     });
+    
+    currentPage = 0;
+    renderContracts();
 }
 
-// Update AI suggestions based on user activity
-function updateAISuggestion() {
-    const suggestions = [
-        "💡 Try searching for 'NAICS 541511' for IT contracts",
-        "🔥 Hot tip: Set aside contracts have less competition",
-        "📈 Small business set-asides increased 23% this year",
-        "🎯 Focus on your NAICS code for better results",
-        "💰 Average contract value this month: $2.4M"
+function sortByValue() {
+    filteredContracts.sort((a, b) => b.value - a.value);
+    renderContracts();
+}
+
+function sortByDate() {
+    filteredContracts.sort((a, b) => new Date(b.postedDate) - new Date(a.postedDate));
+    renderContracts();
+}
+
+// ========== PLAN SELECTION ==========
+function selectPlan(plan) {
+    if (plan === 'premium') {
+        showPaymentOptions();
+    } else if (plan === 'elite') {
+        showPaymentOptions();
+    } else if (plan === 'free') {
+        tg.showAlert("You are already on Free Tier! Upgrade to Premium for 20+ daily contracts.");
+    }
+}
+
+function showPaymentOptions() {
+    const buttons = [
+        {text: "💳 Pay with Card", callback_data: "card"},
+        {text: "⭐ Pay with Telegram Stars", callback_data: "stars"},
+        {text: "₿ Pay with Crypto (USDT)", callback_data: "crypto"},
+        {text: "💰 PayPal", callback_data: "paypal"}
     ];
     
-    const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
-    const aiSuggestion = document.getElementById('aiSuggestion');
-    if (aiSuggestion) {
-        aiSuggestion.innerHTML = randomSuggestion;
-    }
+    tg.showPopup({
+        title: "Choose Payment Method",
+        message: "Select how you want to pay for Premium ($29/month) or Elite ($79/month)",
+        buttons: buttons
+    }, (buttonId) => {
+        if (buttonId === 0) initiateCardPayment();
+        else if (buttonId === 1) initiateStarsPayment();
+        else if (buttonId === 2) initiateCryptoPayment();
+        else if (buttonId === 3) initiatePayPalPayment();
+    });
 }
 
-// Rotate AI suggestions every 30 seconds
-setInterval(updateAISuggestion, 30000);
+function initiateCardPayment() {
+    tg.showInvoice({
+        title: "Premium Monthly",
+        description: "20+ federal contracts daily, NAICS filter, location filter, deadline alerts",
+        currency: "USD",
+        prices: [{label: "Premium Plan", amount: 2900}],
+        payload: JSON.stringify({plan: "premium", user_id: currentUser.id})
+    });
+}
 
-// ============================================
-// REFERRAL SYSTEM
-// ============================================
+function initiateStarsPayment() {
+    tg.showInvoice({
+        title: "Premium Monthly",
+        description: "20+ federal contracts daily",
+        currency: "XTR",
+        prices: [{label: "Premium Plan", amount: 5800}],
+        payload: JSON.stringify({plan: "premium", user_id: currentUser.id})
+    });
+}
 
+function initiateCryptoPayment() {
+    tg.showAlert("Send USDT (TON) to: UQCD3wXJQ5sL5x5x5x5x5x5x5x5x5x5x5x5x5x5x5x\n\nMemo: PREMIUM_" + currentUser.id);
+}
+
+function initiatePayPalPayment() {
+    tg.openLink(`https://paypal.me/yourusername/29`);
+}
+
+// ========== REFERRAL SYSTEM ==========
 function generateReferralLink() {
     const link = `https://t.me/FederalContractHunterBot?start=ref_${currentUser.id}`;
-    const referralInput = document.getElementById('referralLink');
-    if (referralInput) {
-        referralInput.value = link;
-    }
+    document.getElementById('referralLink').value = link;
+    
+    const referrals = JSON.parse(localStorage.getItem(`fch_referrals_${currentUser.id}`) || '[]');
+    document.getElementById('referralCount').innerText = referrals.length;
+    
+    const earnings = referrals.length * 2.9;
+    document.getElementById('referralEarnings').innerText = `$${earnings}`;
+    
+    const nextReward = referrals.length < 5 ? (5 - referrals.length) + ' more referrals' : 'Lifetime Premium Unlocked!';
+    document.getElementById('nextReward').innerText = nextReward;
 }
 
 function copyReferralLink() {
     const link = document.getElementById('referralLink');
     link.select();
     document.execCommand('copy');
-    showToast('Referral link copied! Share with other contractors.', 'success');
+    tg.showAlert('Referral link copied! Share with other contractors.');
 }
 
-// ============================================
-// UTILITY FUNCTIONS
-// ============================================
-
-function showToast(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.innerHTML = message;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.remove();
-    }, 3000);
-}
-
-function showTab(tab) {
-    // Update active nav
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
+// ========== EVENT LISTENERS ==========
+function setupEventListeners() {
+    document.getElementById('searchSubmit').addEventListener('click', searchContracts);
+    document.getElementById('clearSearch').addEventListener('click', () => {
+        document.getElementById('globalSearch').value = '';
+        searchContracts();
     });
-    event.target.closest('.nav-item').classList.add('active');
+    document.getElementById('sortByValue').addEventListener('click', sortByValue);
+    document.getElementById('sortByDate').addEventListener('click', sortByDate);
+    document.getElementById('loadMoreBtn').addEventListener('click', () => {
+        currentPage++;
+        renderContracts();
+    });
+    document.getElementById('copyReferralBtn').addEventListener('click', copyReferralLink);
+    document.getElementById('premiumBtn').addEventListener('click', () => selectPlan('premium'));
+    document.getElementById('eliteBtn').addEventListener('click', () => selectPlan('elite'));
     
+    document.querySelectorAll('.chip').forEach(chip => {
+        chip.addEventListener('click', function() {
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            searchContracts();
+        });
+    });
+    
+    document.getElementById('naicsSelect').addEventListener('change', () => {
+        if (currentUser.tier === 'premium' || currentUser.tier === 'elite') {
+            localStorage.setItem(`fch_naics_${currentUser.id}`, document.getElementById('naicsSelect').value);
+            searchContracts();
+        } else {
+            tg.showAlert("NAICS filtering is a Premium feature. Upgrade now!");
+        }
+    });
+    
+    document.getElementById('stateSelect').addEventListener('change', () => {
+        if (currentUser.tier === 'premium' || currentUser.tier === 'elite') {
+            localStorage.setItem(`fch_state_${currentUser.id}`, document.getElementById('stateSelect').value);
+            searchContracts();
+        } else {
+            tg.showAlert("Location filtering is a Premium feature. Upgrade now!");
+        }
+    });
+    
+    document.getElementById('citySearch').addEventListener('input', () => {
+        if (currentUser.tier === 'premium' || currentUser.tier === 'elite') {
+            localStorage.setItem(`fch_city_${currentUser.id}`, document.getElementById('citySearch').value);
+            searchContracts();
+        }
+    });
+    
+    document.getElementById('priceRange').addEventListener('change', searchContracts);
+    document.getElementById('globalSearch').addEventListener('input', () => {
+        document.getElementById('clearSearch').style.display = 
+            document.getElementById('globalSearch').value ? 'block' : 'none';
+    });
+    
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            this.classList.add('active');
+            const tab = this.dataset.tab;
+            handleTabChange(tab);
+        });
+    });
+}
+
+function handleTabChange(tab) {
     if (tab === 'home') {
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.querySelectorAll('.search-section, .contracts-section, .trust-section, .referral-section').forEach(el => el.style.display = 'block');
     } else if (tab === 'search') {
-        document.getElementById('searchInput').focus();
+        document.getElementById('globalSearch').focus();
     } else if (tab === 'saved') {
-        showToast('Saved contracts feature coming soon!', 'info');
-    } else if (tab === 'analytics') {
-        showAnalytics();
+        tg.showAlert("Saved contracts feature coming soon! Upgrade to Premium to save contracts.");
     } else if (tab === 'profile') {
         showProfile();
+    } else if (tab === 'help') {
+        showHelp();
     }
-}
-
-function showAnalytics() {
-    tg.showPopup({
-        title: "Your Analytics",
-        message: `📊 Performance Stats\n\n` +
-                 `🏆 Contracts Won: ${currentUser.contractsWon}\n` +
-                 `💰 Total Value: $${currentUser.totalValue}\n` +
-                 `⭐ Current Plan: ${currentUser.tier.toUpperCase()}\n` +
-                 `📅 Member Since: ${new Date().toLocaleDateString()}`,
-        buttons: [{text: "Close"}]
-    });
 }
 
 function showProfile() {
     tg.showPopup({
         title: "Your Profile",
-        message: `👤 ${currentUser.name}\n` +
-                 `⭐ Plan: ${currentUser.tier.toUpperCase()}\n` +
-                 `🔢 NAICS: ${currentUser.naics || 'Not set'}\n` +
-                 `📍 Location: ${currentUser.location || 'Not set'}\n` +
-                 `🏆 Contracts Won: ${currentUser.contractsWon}\n\n` +
-                 `Open Mini App to update preferences.`,
+        message: `👤 Name: ${currentUser.name}\n⭐ Plan: ${currentUser.tier.toUpperCase()}\n🔢 NAICS: ${currentUser.naics || 'Not set'}\n📍 Location: ${currentUser.city || 'Not set'}, ${currentUser.location || 'Not set'}\n\nUpgrade to Premium for full access!`,
         buttons: [{text: "Close"}]
     });
 }
 
-function viewContract(contractId) {
-    const contract = allContracts.find(c => c.id === contractId);
-    if (contract) {
-        tg.showPopup({
-            title: contract.title,
-            message: `🏛️ ${contract.agency}\n\n` +
-                     `💰 Value: ${contract.value}\n` +
-                     `📅 Deadline: ${contract.deadline}\n` +
-                     `🔢 NAICS: ${contract.naics}\n` +
-                     `🏷️ Set-Aside: ${contract.setAside}\n\n` +
-                     `📌 Description:\n${contract.description}\n\n` +
-                     `✅ Requirements:\n${contract.requirements}\n\n` +
-                     `🎯 Win Probability: ${contract.probability}`,
-            buttons: [
-                {text: "Save Contract"},
-                {text: "View on SAM.gov", callback_data: "view"}
-            ]
-        }, (buttonId) => {
-            if (buttonId === 'view') {
-                tg.openLink(`https://sam.gov/opp/${contract.id}`);
-            } else if (buttonId === 'Save Contract') {
-                saveContract(contractId);
-            }
-        });
-    }
-}
-
-function saveContract(contractId) {
-    if (!savedContracts.includes(contractId)) {
-        savedContracts.push(contractId);
-        showToast('Contract saved! View in "Saved" tab.', 'success');
-    }
-}
-
-// ============================================
-// LOAD USER DATA
-// ============================================
-
-async function loadUserData() {
-    // Simulate loading from backend
-    // In production, fetch from your database
-    
-    // Demo data
-    currentUser.contractsWon = 2;
-    currentUser.totalValue = 1250000;
-    
-    document.getElementById('contractsWon').innerHTML = `🏆 ${currentUser.contractsWon} Contracts Won`;
-    document.getElementById('totalValue').innerHTML = `💰 $${(currentUser.totalValue / 1000000).toFixed(1)}M Value`;
-}
-
-function setupEventListeners() {
-    // Keyboard search on Enter
-    if (searchInput) {
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                // Search already handled by input event
-            }
-        });
-    }
-}
-
-// ============================================
-// PAYMENT METHODS (All via Telegram)
-// ============================================
-
-function payWith(method) {
-    if (!selectedPlan) {
-        showToast('Please select a plan first!', 'error');
-        return;
-    }
-    
-    let amount = selectedPlan === 'premium' ? 29 : 79;
-    initiatePayment(selectedPlan, amount, method);
+function showHelp() {
+    tg.showPopup({
+        title: "Help Center",
+        message: "📌 How to use:\n1. Set your NAICS code\n2. Select your state/city\n3. Browse daily contracts\n4. Upgrade to Premium for full access\n\n📧 Support: support@federalcontracthunter.com\n⏰ Response: Within 24 hours",
+        buttons: [{text: "Close"}]
+    });
 }
